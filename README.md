@@ -24,7 +24,7 @@ The system is designed to handle medical datasets with skewed distributions and 
 5. **Tree Ensemble Branch**: Composed of Random Forest, ExtraTrees, Histogram Gradient Boosting, Gradient Boosting, Logistic Regression, and Support Vector Classifier.
 6. **Late Fusion**: Alpha-blended probability fusion between the deep branch and the tree branch, with decision thresholds optimized dynamically on a validation split.
 
-![Architecture Flowchart](outputs/claude3_architecture_flowchart.png)
+![Architecture Flowchart](outputs/architecture.png)
 
 ## Repository Structure
 
