@@ -17,7 +17,7 @@ The system is designed to handle medical datasets with skewed distributions and 
 4. **Deep Branch (GFIN)**: 
    - **Role**: Functions as an independent probability predictor running in parallel to the trees (not a feature extractor). Its smooth, non-linear boundaries act as an excellent regularizer to correct the edge-case errors of axis-aligned tree splits.
    - **Feature Attention Gate**: Applies a learned sigmoid mask to input features.
-   - **3-Block Structure**: Employs GRU-style update gates applied over feature representations (non-sequential).
+   - **3-Block Structure**: Employs adaptive update gates applied over feature representations (non-sequential).
      - Block 1: GELU Activation + Batch Normalization
      - Block 2: GELU Activation
      - Block 3: Swish Activation
