@@ -15,6 +15,7 @@ The system is designed to handle medical datasets with skewed distributions and 
    - 6 pairwise interaction terms are computed.
    - Result: A rich 14-dimensional feature vector.
 4. **Deep Branch (GFIN)**: 
+   - **Role**: Functions as an independent probability predictor running in parallel to the trees (not a feature extractor). Its smooth, non-linear boundaries act as an excellent regularizer to correct the edge-case errors of axis-aligned tree splits.
    - **Feature Attention Gate**: Applies a learned sigmoid mask to input features.
    - **3-Block Structure**: Employs GRU-style update gates applied over feature representations (non-sequential).
      - Block 1: GELU Activation + Batch Normalization
@@ -98,4 +99,35 @@ The execution script automatically generates detailed evaluation plots in the `o
 <div style="display: flex; justify-content: space-between;">
   <img src="outputs/feature_importance_14.png" width="49%" />
   <img src="outputs/probability_distribution_by_class.png" width="49%" />
+</div>
+
+## Ablation Studies
+
+To isolate the contribution of each architectural component, we conducted a series of ablation studies on the pipeline. All tests were performed on the same 80/20 data split.
+
+### 1. Impact of RFE Interaction Terms
+Explicitly providing the network with multiplied feature pairs (14-dim vs 8-dim) allows it to discover non-linear medical relationships faster.
+- **Without Interactions:** Accuracy: 86.50% | F1 Score: 86.83%
+- **With Interactions (Full Model):** Accuracy: 89.00% | F1 Score: 89.42% *(+2.5% Accuracy)*
+
+![Interaction Comparison](outputs/comparison_interactions.png)
+
+### 2. Single GFIN vs. Dual GFIN Ensemble
+Averaging the probabilities of 2 distinct GFINs (trained with different seeds and hyperparameters) mitigates neural network initialization variance.
+- **1 GFIN:** Accuracy: 88.00% | F1 Score: 87.88%
+- **2 GFINs (Full Model):** Accuracy: 89.00% | F1 Score: 89.42% *(+1.0% Accuracy)*
+
+![GFIN Count Comparison](outputs/comparison_gfin_count.png)
+
+### 3. Tree Ensemble Fusion & GFIN Value
+The final architecture uses late fusion to take a weighted average of the predictions from the GFIN deep branch and the Tree Ensemble branch. 
+- **Only GFINs (No Trees):** Accuracy: 80.50% | F1 Score: 82.67%
+- **Only Trees (No GFINs):** Accuracy: 85.50% | F1 Score: 86.76%
+- **Fused Full Model:** Accuracy: 89.00% | F1 Score: 89.42%
+
+*Why does fusion work?* Even though the Tree Ensemble is strong on its own (85.5%), it relies on hard, axis-aligned splits. The GFIN networks map smooth, complex, non-linear boundaries. Because they make completely different types of errors, taking their weighted average allows the GFIN to regularize the edge-cases that trees miss, breaking through the performance ceiling to reach **89.0%** (+3.5% over trees alone).
+
+<div style="display: flex; justify-content: space-between;">
+  <img src="outputs/comparison_no_gfin.png" width="49%" />
+  <img src="outputs/comparison_tree_ensemble.png" width="49%" />
 </div>
